@@ -1,3 +1,5 @@
+import socket
+import struct
 from struct import *
 import sys
 
@@ -17,27 +19,21 @@ def main():
         raw_data, addr = s.recvfrom(65535)
         eth = ethernet(raw_data)
         print('\nEthernet Frame:')
-        print('Destination: {}, Source: {}, Protocol: {}'.format(
-            eth[0], eth[1], eth[2]))
+        print('Destination: {}, Source: {}, Protocol: {}'.format(eth[0], eth[1], eth[2]))
         if eth[2] == 8:
             ipv4 = ipv4(ethp[4])
             print('\t - ' + 'IPv4 Packet:')
-            print(
-                '\t\t - ' + 'Version: {}, Header Length: {}, TTL: {},'.format(ipv4[1], ipv4[2], ipv4[3]))
-            print(
-                '\t\t - ' + 'Protocol: {}, Source: {}, Target: {}'.format(ipv4[4], ipv4[5], ipv4[6]))
+            print('\t\t - ' + 'Version: {}, Header Length: {}, TTL: {},'.format(ipv4[1], ipv4[2], ipv4[3]))
+            print('\t\t - ' + 'Protocol: {}, Source: {}, Target: {}'.format(ipv4[4], ipv4[5], ipv4[6]))
+        
         if ipv4[4] == 6:
             tcp = tcp_head(ipv4[7])
             print(TAB_1 + 'TCP Segment:')
-            print(
-                TAB_2 + 'Source Port: {}, Destination Port: {}'.format(tcp[0], tcp[1]))
-            print(
-                TAB_2 + 'Sequence: {}, Acknowledgment: {}'.format(tcp[2], tcp[3]))
+            print(TAB_2 + 'Source Port: {}, Destination Port: {}'.format(tcp[0], tcp[1]))
+            print(TAB_2 + 'Sequence: {}, Acknowledgment: {}'.format(tcp[2], tcp[3]))
             print(TAB_2 + 'Flags:')
-            print(
-                TAB_3 + 'URG: {}, ACK: {}, PSH:{}'.format(tcp[4], tcp[5], tcp[6]))
-            print(
-                TAB_3 + 'RST: {}, SYN: {}, FIN:{}'.format(tcp[7], tcp[8], tcp[9]))
+            print(TAB_3 + 'URG: {}, ACK: {}, PSH:{}'.format(tcp[4], tcp[5], tcp[6]))
+            print(TAB_3 + 'RST: {}, SYN: {}, FIN:{}'.format(tcp[7], tcp[8], tcp[9]))
             if len(tcp[10]) > 0:
 
                 # HTTP
@@ -54,6 +50,13 @@ def main():
                         print(TAB_2 + 'TCP Data:')
                         print(format_multi_line(DATA_TAB_3, tcp[10]))
 
+            elif ipv4[4] == 1:
+                icmp = icmp_head(ipv4[7])
+                print('\t -' + 'ICMP Packet:')
+                print('\t\t -' + 'Type: {}, Code: {}, Checksum:{},'.format(icmp[0], icmp[1], icmp[2]))
+                print('\t\t -' + 'ICMP Data:')
+                print(format_multi_line('\t\t\t', icmp[3]))
+
 
 def ipv4_head(raw_data):
     version_header_length = raw_data[0]
@@ -65,10 +68,8 @@ def ipv4_head(raw_data):
     target = get_ip(target)
     return version, header_length, ttl, proto, src, target, data
 
-
 def get_ip(addr):
     return '.'.join(map(str, addr))
-
 
 def tcp_head(raw_data):
     (src_port, dest_port, sequence, acknowledgment, offset_reserved_flags) = struct.unpack(
@@ -82,6 +83,5 @@ def tcp_head(raw_data):
     flag_fin = offset_reserved_flags & 1
     data = raw_data[offset:]
     return src_port, dest_port, sequence, acknowledgment, flag_urg, flag_ack, flag_psh, flag_rst, flag_syn, flag_fin, data
-
 
 main()
