@@ -1,7 +1,9 @@
 # pysniffer
-Simple Python based packet sniffer
+Python based packet sniffer
 
 Run pysniffer.py on a Linux environment.
 ```
-sudo python3 pysniffer.py
+$ sudo apt-get update
+$ sudo apt-get install python3.8
+$ sudo python3 pysniffer.py
 ```
