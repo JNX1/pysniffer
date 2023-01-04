@@ -16,7 +16,7 @@ def format_multi_line(prefix, string, size=80):
             size -= 1
     return '\n'.join([prefix + line for line in textwrap.wrap(string, size)])
 
-def ethernet_head(raw_data):
+def ethernet_header(raw_data):
 
     dest, src, prototype = struct.unpack('! 6s 6s H', raw_data[:14])
 
@@ -74,7 +74,7 @@ def main():
 
     while True:
         raw_data, addr = s.recvfrom(65535)
-        eth = ethernet_head(raw_data)
+        eth = ethernet_header(raw_data)
         print('\nEthernet Frame:')
         print('Destination: {}, Source: {}, Protocol: {}'.format(eth[0], eth[1], eth[2]))
 
