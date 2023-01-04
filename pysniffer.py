@@ -51,7 +51,7 @@ def ipv4_head(raw_data):
 def get_ip(addr):
     return '.'.join(map(str, addr))
 
-def tcp_head( raw_data):
+def tcp_header( raw_data):
     (src_port, dest_port, sequence, acknowledgment, offset_reserved_flags) = struct.unpack(
         '! H H L L H', raw_data[:14])
     offset = (offset_reserved_flags >> 12) * 4
@@ -86,7 +86,7 @@ def main():
 
             # TCP
             if ipv4[4] == 6:
-                tcp = tcp_head(ipv4[7])
+                tcp = tcp_header(ipv4[7])
                 print('\t -' + 'TCP Segment:')
                 print('\t\t -' + 'Source Port: {}, Destination Port: {}'.format(tcp[0], tcp[1]))
                 print('\t\t -' + 'Sequence: {}, Acknowledgment: {}'.format(tcp[2], tcp[3]))
